@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AERO-RL: Autonomous UAV Flight Navigator</title>
+    <!-- Google Fonts: Orbitron for futuristic headers, Inter for readable body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HUD HEADER -->
+        <header class="hud-header">
+            <div class="header-logo">
+                <div class="drone-icon-pulse">
+                    <span>🛸</span>
+                </div>
+                <div class="brand-text">
+                    <h1>AERO-RL v1.0</h1>
+                    <p>UAV Path-Planning Telemetry & Reinforcement Learning System</p>
+                </div>
+            </div>
+            <div class="connection-status">
+                <span class="status-dot green"></span>
+                <span class="status-text">SIMULATOR ACTIVE (Q-LEARNING)</span>
+            </div>
+        </header>
+
+        <!-- MAIN DASHBOARD LAYOUT -->
+        <main class="dashboard-grid">
+            
+            <!-- LEFT PANEL: Arena & Visualizer -->
+            <section class="panel arena-panel">
+                <div class="panel-header">
+                    <h2><span class="hud-tag">01</span> FLIGHT ENVIRONMENT SHIELD</h2>
+                    <div class="view-toggles">
+                        <label class="switch-label">
+                            <input type="checkbox" id="toggle-heatmap" checked>
+                            <span class="switch-custom"></span> Heatmap
+                        </label>
+                        <label class="switch-label">
+                            <input type="checkbox" id="toggle-arrows" checked>
+                            <span class="switch-custom"></span> Policy Arrows
+                        </label>
+                    </div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="arena-canvas" width="600" height="600"></canvas>
+                </div>
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-color drone-color"></span> Drone (✈)</div>
+                    <div class="legend-item"><span class="legend-color goal-color"></span> Target Goal (G)</div>
+                    <div class="legend-item"><span class="legend-color obstacle-color"></span> Obstacle Shield</div>
+                    <div class="legend-item"><span class="legend-color path-color"></span> Optimal Path</div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Telemetry & Controls -->
+            <section class="panel controls-panel">
+                <!-- TELEMETRY BLOCK -->
+                <div class="panel-header">
+                    <h2><span class="hud-tag">02</span> MISSION CONTROL & HYPERPARAMETERS</h2>
+                </div>
+                
+                <!-- PLAY / AUTO-TRAIN BUTTONS -->
+                <div class="control-row action-buttons">
+                    <button id="btn-step" class="btn btn-secondary">⚡ Step Mode</button>
+                    <button id="btn-train-episode" class="btn btn-secondary">▶ Train 1 Episode</button>
+                    <button id="btn-auto-train" class="btn btn-primary">🔥 Auto-Train</button>
+                    <button id="btn-reset" class="btn btn-danger">⟳ Reset Map</button>
+                </div>
+
+                <!-- HYPERPARAMETER SLIDERS -->
+                <div class="parameters-grid">
+                    <div class="control-group">
+                        <div class="slider-header">
+                            <label for="slider-epsilon">Exploration Rate (Epsilon &epsilon;)</label>
+                            <span id="val-epsilon" class="val-display">1.00</span>
+                        </div>
+                        <p class="param-explain">How often the drone tries random moves (Exploration) vs. best moves (Exploitation).</p>
+                        <input type="range" id="slider-epsilon" min="0" max="1" step="0.01" value="1.00">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="slider-header">
+                            <label for="slider-alpha">Learning Rate (Alpha &alpha;)</label>
+                            <span id="val-alpha" class="val-display">0.15</span>
+                        </div>
+                        <p class="param-explain">How fast the drone updates its brain with new rewards. High = updates fast; Low = slow.</p>
+                        <input type="range" id="slider-alpha" min="0.01" max="1" step="0.01" value="0.15">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="slider-header">
+                            <label for="slider-gamma">Discount Factor (Gamma &gamma;)</label>
+                            <span id="val-gamma" class="val-display">0.90</span>
+                        </div>
+                        <p class="param-explain">How much the drone values future safety over instant rewards. High = plans long-term.</p>
+                        <input type="range" id="slider-gamma" min="0" max="1" step="0.01" value="0.90">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="slider-header">
+                            <label for="slider-speed">Simulation Speed (FPS)</label>
+                            <span id="val-speed" class="val-display">15</span>
+                        </div>
+                        <input type="range" id="slider-speed" min="1" max="60" step="1" value="15">
+                    </div>
+                </div>
+
+                <!-- TELEMETRY DATA DISPLAY -->
+                <div class="telemetry-box">
+                    <h3>LIVE FLIGHT DATA</h3>
+                    <div class="telemetry-grid">
+                        <div class="tel-item">
+                            <span class="tel-label">CURRENT POSITION</span>
+                            <span id="tel-pos" class="tel-val">(0, 0)</span>
+                        </div>
+                        <div class="tel-item">
+                            <span class="tel-label">EPISODE</span>
+                            <span id="tel-episode" class="tel-val">0</span>
+                        </div>
+                        <div class="tel-item">
+                            <span class="tel-label">STEPS TAKEN</span>
+                            <span id="tel-steps" class="tel-val">0</span>
+                        </div>
+                        <span class="tel-item">
+                            <span class="tel-label">LAST REWARD</span>
+                            <span id="tel-reward" class="tel-val">0</span>
+                        </span>
+                        <div class="tel-item">
+                            <span class="tel-label">SUCCESS RATE</span>
+                            <span id="tel-success-rate" class="tel-val">0%</span>
+                        </div>
+                        <div class="tel-item">
+                            <span class="tel-label">TOTAL REWARD (EP)</span>
+                            <span id="tel-total-reward" class="tel-val">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EXPLAINER LOG -->
+                <div class="explainer-box">
+                    <h3>💡 DRONE'S THOUGHT PROCESS (Kid-friendly)</h3>
+                    <div id="explainer-log" class="explainer-content">
+                        Hello flight cadet! I am a neural-telemetric drone model. Press "Auto-Train" to watch me explore my universe. Right now, my brain is completely blank (all Q-values are 0). I will wander around, get zapped by walls, and find the goal to learn the perfect flight path!
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
