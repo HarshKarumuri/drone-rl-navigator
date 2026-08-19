@@ -1,7 +1,7 @@
 # Deep Reinforcement Learning for Autonomous Micro-UAV Obstacle Avoidance and Path Planning in Constrained Environments
 
-**Author:** [Your Name]  
-**Target Submission:** IEEE International Conference on Robotics and Automation (ICRA) / Portfolio Submission for ND Matrix
+**Author:** Harsh Karumuri 
+**Target Submission:** IEEE International Conference on Robotics and Automation (ICRA) 
 
 ---
 
